@@ -68,6 +68,7 @@ video {
   background: #ff0055;
   color: white;
   cursor: pointer;
+  z-index: 9999;
 }
 
 .app.success {
@@ -87,6 +88,8 @@ video {
   font-size: 26px;
   color: white;
   cursor: pointer;
+  z-index: 9999;
+
 }
 
 .cancelButton {
@@ -96,6 +99,8 @@ video {
   font-size: 16px;
   color: white;
   cursor: pointer;
+  z-index: 9999;
+
 }
 
 .mic.listening {
