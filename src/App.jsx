@@ -64,8 +64,32 @@ export default function App() {
   };
 
   const startListening = () => {
-    if (recognitionRef.current) recognitionRef.current.start();
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      console.log("Speech API not supported");
+      return;
+    }
+
+    const rec = new SpeechRecognition();
+    rec.lang = "ru-RU";
+    rec.interimResults = false;
+    rec.continuous = false;
+
+    rec.onstart = () => setStatus("listening");
+    rec.onend = () => setStatus("idle");
+    rec.onerror = () => setStatus("idle");
+
+    rec.onresult = e => {
+      const text = e.results[0][0].transcript.toLowerCase();
+      setHeard(text);
+      if (text.includes(WORDS[current].native)) success();
+      else error();
+    };
+
+    recognitionRef.current = rec;
+    recognitionRef.current.start(); // Запуск прямо в обработчике кнопки
   };
+
 
   const stopListening = () => {
     if (recognitionRef.current) recognitionRef.current.stop();
