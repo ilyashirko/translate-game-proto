@@ -15,6 +15,24 @@ export default function App() {
   const [isDemo, setIsDemo] = useState(false)
   const recognitionRef = useRef(null);
 
+  useEffect(() => {
+    async function initMedia() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user" },
+          audio: true
+        });
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (err) {
+        console.error("Permission error:", err);
+      }
+    }
+
+    initMedia();
+  }, []);
+
   const enterFullscreen = () => {
     if (document.documentElement.requestFullscreen) {
       document.documentElement.requestFullscreen();
@@ -25,14 +43,14 @@ export default function App() {
   };
 
   // Camera
-  useEffect(() => {
-    navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "user" },
-      audio: false,
-    }).then(stream => {
-      videoRef.current.srcObject = stream;
-    });
-  }, []);
+  // useEffect(() => {
+  //   navigator.mediaDevices.getUserMedia({
+  //     video: { facingMode: "user" },
+  //     audio: false,
+  //   }).then(stream => {
+  //     videoRef.current.srcObject = stream;
+  //   });
+  // }, []);
 
   // Speech recognition
   const startListening = () => {
@@ -117,21 +135,21 @@ export default function App() {
     audio.play();
   };
 
-  useEffect(() => {
-    async function requestPermissions() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "user" },
-          audio: true // сразу просим микрофон
-        });
-        videoRef.current.srcObject = stream;
-      } catch (err) {
-        console.error("Permission error:", err);
-      }
-    }
+  // useEffect(() => {
+  //   async function requestPermissions() {
+  //     try {
+  //       const stream = await navigator.mediaDevices.getUserMedia({
+  //         video: { facingMode: "user" },
+  //         audio: true // сразу просим микрофон
+  //       });
+  //       videoRef.current.srcObject = stream;
+  //     } catch (err) {
+  //       console.error("Permission error:", err);
+  //     }
+  //   }
 
-    requestPermissions();
-  }, []);
+  //   requestPermissions();
+  // }, []);
 
   return (
     <div className={`app ${status}`}>
