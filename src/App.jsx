@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import './index.css'
 
 const WORDS = [
@@ -17,7 +17,37 @@ export default function App() {
   const [isCameraOn, setIsCameraOn] = useState(false); // разрешения получены
   const [isFullscreen, setIsFullscreen] = useState(false); // fullscreen включен
 
-  // 1️⃣ Кнопка СТАРТ — запрашивает разрешения
+  // ⚡ создаём объект распознавания заранее
+  useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+
+    const rec = new SpeechRecognition();
+    rec.lang = "ru-RU";
+    rec.interimResults = true;  // промежуточные результаты для быстрого отклика
+    rec.continuous = false;
+
+    rec.onstart = () => setStatus("listening");
+    rec.onend = () => setStatus("idle");
+    rec.onerror = () => setStatus("idle");
+
+    rec.onresult = e => {
+      const text = Array.from(e.results)
+        .map(r => r[0].transcript)
+        .join('')
+        .toLowerCase()
+        .trim();
+      setHeard(text);
+
+      // проверка с очисткой текста
+      const expected = WORDS[current].native.toLowerCase().trim();
+      if (text.includes(expected)) success();
+    };
+
+    recognitionRef.current = rec;
+  }, [current]);
+
+  // кнопка СТАРТ
   const handleStart = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -32,45 +62,22 @@ export default function App() {
     }
   };
 
-  // 2️⃣ Кнопка FULLSCREEN — включает полноэкранный режим
-  const handleFullscreen = async () => {
-    try {
-      if (document.documentElement.requestFullscreen) {
-        await document.documentElement.requestFullscreen();
-      } else if (document.documentElement.webkitRequestFullscreen) {
-        await document.documentElement.webkitRequestFullscreen();
-      }
-      setIsFullscreen(true);
-    } catch (err) {
-      console.error("Fullscreen failed:", err);
+  // кнопка FULLSCREEN
+  const handleFullscreen = () => {
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else if (document.documentElement.webkitRequestFullscreen) {
+      document.documentElement.webkitRequestFullscreen().catch(() => {});
     }
+    setIsFullscreen(true);
   };
 
-  // 3️⃣ Кнопка SAY IT — старт распознавания речи
+  // запуск распознавания
   const startListening = () => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
+    if (!recognitionRef.current) {
       alert("Speech API not supported");
       return;
     }
-
-    const rec = new SpeechRecognition();
-    rec.lang = "ru-RU";
-    rec.interimResults = false;
-    rec.continuous = false;
-
-    rec.onstart = () => setStatus("listening");
-    rec.onend = () => setStatus("idle");
-    rec.onerror = () => setStatus("idle");
-
-    rec.onresult = e => {
-      const text = e.results[0][0].transcript.toLowerCase();
-      setHeard(text);
-      if (text.includes(WORDS[current].native)) success();
-      else error();
-    };
-
-    recognitionRef.current = rec;
     recognitionRef.current.start();
   };
 
