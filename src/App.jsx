@@ -16,30 +16,6 @@ export default function App() {
   const [heard, setHeard] = useState("");
   const [isDemo, setIsDemo] = useState(false);
 
-  // Инициализация SpeechRecognition один раз
-  useEffect(() => {
-    if (!("SpeechRecognition" in window || "webkitSpeechRecognition" in window)) return;
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const rec = new SpeechRecognition();
-    rec.lang = "ru-RU";
-    rec.interimResults = false;
-    rec.continuous = false;
-
-    rec.onstart = () => setStatus("listening");
-    rec.onend = () => setStatus("idle");
-    rec.onerror = () => setStatus("idle");
-
-    rec.onresult = e => {
-      const text = e.results[0][0].transcript.toLowerCase();
-      setHeard(text);
-
-      if (text.includes(WORDS[current].native)) success();
-      else error();
-    };
-
-    recognitionRef.current = rec;
-  }, [current]);
 
   // Кнопка СТАРТ
   const handleStart = async () => {
