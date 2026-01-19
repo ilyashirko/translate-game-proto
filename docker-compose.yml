@@ -1,0 +1,9 @@
+services:
+  app:
+    build: .
+    container_name: react-proto
+    ports:
+      - "8011:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules

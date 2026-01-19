@@ -1,0 +1,186 @@
+
+
+html, body, #root {
+  margin: 0;
+  height: 100%;
+  font-family: system-ui;
+}
+
+.app {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+
+video {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.overlay {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  align-items: center;
+  color: white;
+  text-shadow: 0 4px 20px rgba(0,0,0,.7);
+
+}
+
+.word {
+  font-size: 56px;
+  font-weight: 800;
+  /* animation: pulse 1.5s infinite; */
+}
+
+/* прыжок */
+.word.jump {
+  animation: jumpWord 0.8s ease-in-out infinite;
+}
+
+@keyframes jumpWord {
+  0% {
+    transform: translateY(0) scale(1);
+    text-shadow: 0 6px 20px rgba(0,0,0,0.6);
+  }
+  40% {
+    transform: translateY(-18px);
+    text-shadow: 0 20px 40px rgba(0,0,0,0.8);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    text-shadow: 0 6px 20px rgba(0,0,0,0.6);
+  }
+}
+
+.mic {
+  margin-top: 24px;
+  padding: 16px 32px;
+  font-size: 18px;
+  border-radius: 999px;
+  border: none;
+  background: #ff0055;
+  color: white;
+  cursor: pointer;
+}
+
+.app.success {
+  animation: flashGreen 0.3s;
+}
+
+.app.error {
+  animation: flashRed 0.3s;
+}
+
+
+
+.demoButton {
+  margin: 30px;
+  background-color: rgba(0,0,0,.5);
+  border: none;
+  font-size: 26px;
+  color: white;
+  cursor: pointer;
+}
+
+.cancelButton {
+  margin-top: 30px;
+  background-color:transparent;
+  border: none;
+  font-size: 16px;
+  color: white;
+  cursor: pointer;
+}
+
+.mic.listening {
+  margin-top: 24px;
+  padding: 16px 32px;
+  font-size: 18px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.6);
+  color: #00ffcc;
+  animation: pulse 1s infinite;
+  pointer-events: none;
+}
+
+
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+@keyframes flashGreen {
+  from { background: rgba(0,255,0,.3); }
+}
+
+@keyframes flashRed {
+  from { background: rgba(255,0,0,.3); }
+}
+
+
+.box {
+
+  width: 100%;
+  padding: 30px 0;
+  margin-bottom: 50px;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  flex-direction: column;
+  z-index: 2;
+  position: absolute;
+
+  position: absolute;
+  bottom: 0;
+
+  z-index: 2;
+  border-radius: 20px;
+
+  transition: transform 0.3s ease;
+  height: 300px;
+}
+
+
+
+
+
+.road {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 50%;
+  perspective: 600px;
+  overflow: hidden;
+
+}
+
+.road::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.2) 0px,
+      rgba(255,255,255,0.2) 20px,
+      transparent 20px,
+      transparent 40px
+    );
+  transform: rotateX(65deg) translateY(100px);
+  animation: roadMove 1s linear infinite;
+  z-index: 1;
+}
+
+@keyframes roadMove {
+  from { background-position-y: 0; }
+  to   { background-position-y: 40px; }
+}
+
+
