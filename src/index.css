@@ -26,11 +26,18 @@ video {
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: end;
+  /* justify-content: end; */
   align-items: center;
   color: white;
   text-shadow: 0 4px 20px rgba(0,0,0,.7);
 
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* теперь кнопка всегда по центру по высоте */
+  align-items: center;
 }
 
 .word {
@@ -69,6 +76,9 @@ video {
   color: white;
   cursor: pointer;
   z-index: 9999;
+  z-index: 20; /* выше всех слоёв */
+  pointer-events: auto; /* touch работает */
+  touch-action: manipulation; /* улучшает сенсорное взаимодействие */
 }
 
 .app.success {
@@ -131,25 +141,15 @@ video {
 
 
 .box {
-  /* border: red 3px solid; */
+  position: relative;
+  z-index: 10; /* выше видео и дороги */
   width: 100%;
-  padding: 30px 0;
-  /* margin-bottom: 50px; */
   display: flex;
-  justify-content: start;
-  align-items: center;
   flex-direction: column;
-  z-index: 2;
-  position: absolute;
-
-  position: absolute;
-  bottom: 0;
-
-  z-index: 2;
-  border-radius: 20px;
-
-  transition: transform 0.3s ease;
-  height: 300px;
+  justify-content: center;
+  align-items: center;
+  height: 100%; /* занимаем всю overlay, чтобы кнопка всегда кликабельна */
+  pointer-events: auto;
 }
 
 
