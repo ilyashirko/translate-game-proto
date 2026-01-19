@@ -120,7 +120,11 @@ export default function App() {
         <div className="road">
           <div className={`box ${status}`}>
             {!isCameraOn && (
-              <button onClick={handleStart} className="demoButton">
+              <button 
+                onClick={() => {
+                  recognitionRef.current?.start(); // старт прямо в клике
+                }} 
+              className="demoButton">
                 СТАРТ
               </button>
             )}
