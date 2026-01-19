@@ -121,10 +121,8 @@ export default function App() {
           <div className={`box ${status}`}>
             {!isCameraOn && (
               <button 
-                onClick={() => {
-                  recognitionRef.current?.start(); // старт прямо в клике
-                }} 
-              className="demoButton">
+                onClick={handleStart} 
+                className="demoButton">
                 СТАРТ
               </button>
             )}
