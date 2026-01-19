@@ -139,7 +139,11 @@ export default function App() {
               <>
                 <div className="word jump">{WORDS[current].foreign}</div>
                 {heard && <div className="heard">You said: {heard}</div>}
-                <button onClick={startListening} className="mic">
+                <button 
+                  onClick={() => {
+                    recognitionRef.current?.start(); // старт прямо в клике
+                  }}
+                  className="mic">
                   🎤 SAY IT
                 </button>
               </>
