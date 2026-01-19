@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import './index.css'
 
 const WORDS = [
@@ -14,10 +14,10 @@ export default function App() {
   const [current, setCurrent] = useState(0);
   const [status, setStatus] = useState("idle"); // idle | listening | success | error
   const [heard, setHeard] = useState("");
-  const [isDemo, setIsDemo] = useState(false);
+  const [isCameraOn, setIsCameraOn] = useState(false); // разрешения получены
+  const [isFullscreen, setIsFullscreen] = useState(false); // fullscreen включен
 
-
-  // Кнопка СТАРТ
+  // 1️⃣ Кнопка СТАРТ — запрашивает разрешения
   const handleStart = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -25,24 +25,32 @@ export default function App() {
         audio: true
       });
       if (videoRef.current) videoRef.current.srcObject = stream;
-
-      if (document.documentElement.requestFullscreen) {
-        await document.documentElement.requestFullscreen();
-      } else if (document.documentElement.webkitRequestFullscreen) {
-        await document.documentElement.webkitRequestFullscreen();
-      }
-
-      setIsDemo(true);
+      setIsCameraOn(true);
     } catch (err) {
       console.error("Permission denied:", err);
       alert("Нужны разрешения на камеру и микрофон");
     }
   };
 
+  // 2️⃣ Кнопка FULLSCREEN — включает полноэкранный режим
+  const handleFullscreen = async () => {
+    try {
+      if (document.documentElement.requestFullscreen) {
+        await document.documentElement.requestFullscreen();
+      } else if (document.documentElement.webkitRequestFullscreen) {
+        await document.documentElement.webkitRequestFullscreen();
+      }
+      setIsFullscreen(true);
+    } catch (err) {
+      console.error("Fullscreen failed:", err);
+    }
+  };
+
+  // 3️⃣ Кнопка SAY IT — старт распознавания речи
   const startListening = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      console.log("Speech API not supported");
+      alert("Speech API not supported");
       return;
     }
 
@@ -63,9 +71,8 @@ export default function App() {
     };
 
     recognitionRef.current = rec;
-    recognitionRef.current.start(); // Запуск прямо в обработчике кнопки
+    recognitionRef.current.start();
   };
-
 
   const stopListening = () => {
     if (recognitionRef.current) recognitionRef.current.stop();
@@ -105,32 +112,35 @@ export default function App() {
       <div className="overlay">
         <div className="road">
           <div className={`box ${status}`}>
-            {isDemo ? (
-              <>
-                <div className="word jump">{WORDS[current].foreign}</div>
-                {heard && <div className="heard">You said: {heard}</div>}
-
-                {status === "idle" && (
-                  <button onClick={startListening} className="mic">
-                    🎤 SAY IT
-                  </button>
-                )}
-
-                {status === "listening" && (
-                  <>
-                    <button className="mic listening">
-                      👂 СЛУШАЮ…
-                    </button>
-                    <button onClick={stopListening} className="cancelButton">
-                      отмена
-                    </button>
-                  </>
-                )}
-              </>
-            ) : (
+            {!isCameraOn && (
               <button onClick={handleStart} className="demoButton">
                 СТАРТ
               </button>
+            )}
+
+            {isCameraOn && !isFullscreen && (
+              <button onClick={handleFullscreen} className="demoButton">
+                FULLSCREEN
+              </button>
+            )}
+
+            {isCameraOn && isFullscreen && status === "idle" && (
+              <>
+                <div className="word jump">{WORDS[current].foreign}</div>
+                {heard && <div className="heard">You said: {heard}</div>}
+                <button onClick={startListening} className="mic">
+                  🎤 SAY IT
+                </button>
+              </>
+            )}
+
+            {status === "listening" && (
+              <>
+                <button className="mic listening">👂 СЛУШАЮ…</button>
+                <button onClick={stopListening} className="cancelButton">
+                  отмена
+                </button>
+              </>
             )}
           </div>
         </div>
