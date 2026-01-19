@@ -117,6 +117,22 @@ export default function App() {
     audio.play();
   };
 
+  useEffect(() => {
+    async function requestPermissions() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user" },
+          audio: true // сразу просим микрофон
+        });
+        videoRef.current.srcObject = stream;
+      } catch (err) {
+        console.error("Permission error:", err);
+      }
+    }
+
+    requestPermissions();
+  }, []);
+
   return (
     <div className={`app ${status}`}>
       <video ref={videoRef} autoPlay playsInline muted />
@@ -147,7 +163,7 @@ export default function App() {
               </>
             ) : (
               <button onClick={enterFullscreen} className="demoButton">
-                Enter demo mode
+                Войти в полноэкранный режим
               </button>
             )}
 
