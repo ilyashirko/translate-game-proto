@@ -9,105 +9,64 @@ const WORDS = [
 
 export default function App() {
   const videoRef = useRef(null);
+  const recognitionRef = useRef(null);
+
   const [current, setCurrent] = useState(0);
   const [status, setStatus] = useState("idle"); // idle | listening | success | error
   const [heard, setHeard] = useState("");
-  const [isDemo, setIsDemo] = useState(false)
-  const recognitionRef = useRef(null);
+  const [isDemo, setIsDemo] = useState(false);
 
+  // Инициализация SpeechRecognition один раз
   useEffect(() => {
-    async function initMedia() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "user" },
-          audio: true
-        });
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      } catch (err) {
-        console.error("Permission error:", err);
-      }
-    }
+    if (!("SpeechRecognition" in window || "webkitSpeechRecognition" in window)) return;
 
-    initMedia();
-  }, []);
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const rec = new SpeechRecognition();
+    rec.lang = "ru-RU";
+    rec.interimResults = false;
+    rec.continuous = false;
 
-  const enterFullscreen = () => {
-    if (document.documentElement.requestFullscreen) {
-      document.documentElement.requestFullscreen();
-    } else if (document.documentElement.webkitRequestFullscreen) {
-      document.documentElement.webkitRequestFullscreen(); // для Safari
+    rec.onstart = () => setStatus("listening");
+    rec.onend = () => setStatus("idle");
+    rec.onerror = () => setStatus("idle");
+
+    rec.onresult = e => {
+      const text = e.results[0][0].transcript.toLowerCase();
+      setHeard(text);
+
+      if (text.includes(WORDS[current].native)) success();
+      else error();
+    };
+
+    recognitionRef.current = rec;
+  }, [current]);
+
+  // Нажатие кнопки СТАРТ
+  const handleStart = async () => {
+    try {
+      // Запрашиваем камеру и микрофон
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user" },
+        audio: true
+      });
+      if (videoRef.current) videoRef.current.srcObject = stream;
+
+      // Включаем демо режим
+      setIsDemo(true);
+    } catch (err) {
+      console.error("Permission denied:", err);
+      alert("Нужны разрешения на камеру и микрофон");
     }
-    setIsDemo(true); // сразу запускаем игру/распознавание
   };
 
-  // Camera
-  // useEffect(() => {
-  //   navigator.mediaDevices.getUserMedia({
-  //     video: { facingMode: "user" },
-  //     audio: false,
-  //   }).then(stream => {
-  //     videoRef.current.srcObject = stream;
-  //   });
-  // }, []);
-
-  // Speech recognition
   const startListening = () => {
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
-
-    if (!SpeechRecognition) {
-      console.log("Speech API not supported");
-      return;
-    }
-
-    if (!recognitionRef.current) {
-      const rec = new SpeechRecognition();
-      rec.lang = "ru-RU";
-      rec.interimResults = false;
-      rec.continuous = false;
-
-      rec.onstart = () => {
-        console.log("🎤 listening");
-        setStatus("listening");
-      };
-
-      rec.onend = () => {
-        console.log("🛑 stopped");
-        setStatus("idle");
-      };
-
-      rec.onerror = e => {
-        console.error("Speech error", e);
-        setStatus("idle");
-      };
-
-      rec.onresult = e => {
-        const text = e.results[0][0].transcript.toLowerCase();
-        setHeard(text);
-
-        if (text.includes(WORDS[current].native)) {
-          success();
-        } else {
-          error();
-        }
-      };
-
-      recognitionRef.current = rec;
-    }
-
-    recognitionRef.current.start();
+    if (recognitionRef.current) recognitionRef.current.start();
   };
 
   const stopListening = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      setStatus("idle");
-    }
+    if (recognitionRef.current) recognitionRef.current.stop();
+    setStatus("idle");
   };
-
-
 
   const success = () => {
     setStatus("success");
@@ -135,22 +94,6 @@ export default function App() {
     audio.play();
   };
 
-  // useEffect(() => {
-  //   async function requestPermissions() {
-  //     try {
-  //       const stream = await navigator.mediaDevices.getUserMedia({
-  //         video: { facingMode: "user" },
-  //         audio: true // сразу просим микрофон
-  //       });
-  //       videoRef.current.srcObject = stream;
-  //     } catch (err) {
-  //       console.error("Permission error:", err);
-  //     }
-  //   }
-
-  //   requestPermissions();
-  // }, []);
-
   return (
     <div className={`app ${status}`}>
       <video ref={videoRef} autoPlay playsInline muted />
@@ -162,6 +105,7 @@ export default function App() {
               <>
                 <div className="word jump">{WORDS[current].foreign}</div>
                 {heard && <div className="heard">You said: {heard}</div>}
+
                 {status === "idle" && (
                   <button onClick={startListening} className="mic">
                     🎤 SAY IT
@@ -180,20 +124,13 @@ export default function App() {
                 )}
               </>
             ) : (
-              <button onClick={enterFullscreen} className="demoButton">
-                Войти в полноэкранный режим
+              <button onClick={handleStart} className="demoButton">
+                СТАРТ
               </button>
             )}
-
-            
           </div>
         </div>
       </div>
-
     </div>
   );
 }
-
-
-
-
