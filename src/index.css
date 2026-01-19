@@ -111,7 +111,7 @@ video {
   background: rgba(0,0,0,0.6);
   color: #00ffcc;
   animation: pulse 1s infinite;
-  pointer-events: none;
+  /* pointer-events: none; */
 }
 
 
@@ -181,7 +181,7 @@ video {
   transform: rotateX(65deg) translateY(100px);
   animation: roadMove 1s linear infinite;
   z-index: 1;
-  /* height: 200%; */
+  pointer-events: none;
 
 }
 
