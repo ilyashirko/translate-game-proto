@@ -41,17 +41,21 @@ export default function App() {
     recognitionRef.current = rec;
   }, [current]);
 
-  // Нажатие кнопки СТАРТ
+  // Кнопка СТАРТ
   const handleStart = async () => {
     try {
-      // Запрашиваем камеру и микрофон
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user" },
         audio: true
       });
       if (videoRef.current) videoRef.current.srcObject = stream;
 
-      // Включаем демо режим
+      if (document.documentElement.requestFullscreen) {
+        await document.documentElement.requestFullscreen();
+      } else if (document.documentElement.webkitRequestFullscreen) {
+        await document.documentElement.webkitRequestFullscreen();
+      }
+
       setIsDemo(true);
     } catch (err) {
       console.error("Permission denied:", err);
